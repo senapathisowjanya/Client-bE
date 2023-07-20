@@ -4,6 +4,7 @@ const connectionToDb = require("./config/connection")
 const postJobRoute = require("./controllers/postjob.controller")
 const app = express()
 const cors = require("cors")
+app.use(cors())
 const path = require("path")
 const multer = require("multer")
 const UserModel = require("./model/user.model")
@@ -15,9 +16,16 @@ const {createTransport} =  require("nodemailer")
 const PostJobModel = require("./model/postjob.model")
 const RecDashboardRoute = require("./controllers/RecDashboard.controller")
 const jobFormRoute = require("./controllers/jobForm.controller")
+const JobFormModel = require("./model/jobform.model")
+
+// const corsOptions = {
+//    origin: ["https://client-pro-venkysanju246.vercel.app", "http://localhost:3000"],
+//  };
+//  app.use(cors(corsOptions));
+ 
 app.use(express.json())
 app.use(express.static("public"))
-app.use(cors())
+
 app.use(express.json())
 app.use("/user", userRoute)
 app.use("/jobs", postJobRoute)
@@ -46,7 +54,7 @@ app.post("/api/upload", gridStorage().single("file"), async (req, res) => {
       const answers = req.body.answers;
       const id = req.body.jobUniqueID;
       console.log("idd", id)
-      const findJob = await JobSeekerModel.findOne({ jobUniqueID: id })
+      const findJob = await JobFormModel.findOne({ jobUniqueID: id })
       const postJobFind = await PostJobModel.findOne({uniqueID: findJob.jobUniqueID})
        postJobFind.jobResponse = true;
       //  console.log("postJobFind", postJobFind)
@@ -94,12 +102,16 @@ app.post("/api/upload", gridStorage().single("file"), async (req, res) => {
 //end audio files
 
 app.post("/upload", upload.single('file'), async (req, res) => {
+  // res.header('Access-Control-Allow-Origin', 'https://client-pro-venkysanju246.vercel.app/');
+
    try {
+     
+      
       const imgs = req.file.filename
       const { email } = req.body
-      console.log("now", req.body)
+     
       const userCheck = await UserModel.find({ email })
-      console.log("userCheck", userCheck)
+
       const newData = new JobSeekerModel({ firstName: req.body.firstName, lastName: req.body.lastName, email: req.body.email, phoneNumber: req.body.phoneNumber, image: req.file.filename, jobUniqueID: req.body.jobUniqueID })
       await newData.save()
       if (userCheck.length > 0) {
@@ -112,7 +124,7 @@ app.post("/upload", upload.single('file'), async (req, res) => {
       })
 
    } catch (error) {
-      return res.send({
+      return res.status(500).send({
          msg: error.message,
       })
    }
