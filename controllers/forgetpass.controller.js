@@ -28,7 +28,7 @@ forgetRoute.post("/forget",async (req, res)=>{
         to: email,
         subject: "Reset Password Link",
         text: "Here is the link to reset your password",
-        html: "Here is the link to reset your password: <a href='http://localhost:3000/ForgotPassword'>Click to Reset</a>"
+        html: "Here is the link to reset your password: <a href='https://client-pro-venkysanju246.vercel.app/ForgotPassword'>Click to Reset</a>"
       };
       
             transporter.sendMail(mailOptions, (err, info)=>{
