@@ -86,7 +86,7 @@ app.post("/api/upload", gridStorage().single("file"), async (req, res) => {
      }) 
 
       res.send({
-         msg: "Data uploaded successfully"
+         msg: "Your response has been submitted"
       })
    } catch (error) {
       res.status(404).send({
