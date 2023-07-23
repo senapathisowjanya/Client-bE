@@ -17,11 +17,7 @@ const PostJobModel = require("./model/postjob.model")
 const RecDashboardRoute = require("./controllers/RecDashboard.controller")
 const jobFormRoute = require("./controllers/jobForm.controller")
 const JobFormModel = require("./model/jobform.model")
-
-// const corsOptions = {
-//    origin: ["https://client-pro-venkysanju246.vercel.app", "http://localhost:3000"],
-//  };
-//  app.use(cors(corsOptions));
+const auth = require("./middleware/auth.middleware")
  
 app.use(express.json())
 app.use(express.static("public"))
@@ -129,6 +125,20 @@ app.post("/upload", upload.single('file'), async (req, res) => {
       })
    }
 })
+
+//for view responses
+app.get("/getResponse/:id",async (req, res)=>{
+   const id = req.params.id
+   const ResumeData = await JobSeekerModel.findOne({jobUniqueID: id})
+   const FullData = await JobFormModel.findOne({jobUniqueID: id})
+   console.log("ResumeData", ResumeData)
+   console.log("FullData", FullData)
+   res.send({
+      ResumeData:ResumeData,
+      FullData : FullData
+   })
+})
+
 
 app.listen(8080, async () => {
    try {
