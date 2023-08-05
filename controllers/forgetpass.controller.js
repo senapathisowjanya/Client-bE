@@ -13,7 +13,7 @@ forgetRoute.post("/forget",async (req, res)=>{
         const checkUser = await UserModel.find({email})
         if(checkUser.length > 0){
      tempEmail = email
-     console.log(tempEmail)
+    //  console.log(tempEmail)
      const transporter = createTransport({
         host:process.env.MAIL_HOST,
         port: process.env.MAIL_PORT,
@@ -60,9 +60,9 @@ forgetRoute.post("/update/:email", async (req, res) => {
   try {
     const { password } = req.body;
     const { email } = req.params
-    console.log(email)
+    // console.log(email)
     const emailCheck = await UserModel.findOne({ email: email });
-    console.log(emailCheck);
+    // console.log(emailCheck);
     if (emailCheck) {
       const hash = bcrypt.hashSync(password, 5);
       const passUpdate = await UserModel.findByIdAndUpdate(emailCheck._id, { password: hash });

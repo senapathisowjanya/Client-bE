@@ -6,7 +6,7 @@ const auth = (req, res, next) => {
   try {
     if (token) {
       jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        console.log(decoded)
+        // console.log(decoded)
         if (err) {
           res.status(400).send({
             msg: "Invalid token. Please login"

@@ -99,4 +99,20 @@ RecDashboardRoute.get("/totalapplicants",auth, async(req, res)=>{
      
 })
 
+//checking edgecase, a person cannot apply for 2 same jobs
+RecDashboardRoute.get("/secondApply/:id", async (req, res)=>{
+  const id = req.params.id 
+  const {email} = req.query 
+  const checkData = await JobSeekerModel.find({jobUniqueID : id, email : email})
+  if(checkData.length!=0){
+     res.status(400).send({
+      msg:"Already Applied to this job!!"
+     })
+  }else{
+    res.status(200).send({
+      msg:"Fresh user"
+    })
+  }
+})
+
 module.exports = RecDashboardRoute

@@ -4,6 +4,7 @@ const auth = require('../middleware/auth.middleware');
 const postJobRoute = express.Router()
 const uuid = require("uuid");
 const JobFormModel = require('../model/jobform.model');
+const AddNewQstnModel = require('../model/addnewqstn.model');
 
 postJobRoute.post("/postjob",auth, async (req, res) => {
   try {
@@ -37,9 +38,19 @@ postJobRoute.get("/alljobs", auth, async (req, res) => {
   }
   
 })
-postJobRoute.get("/onejob/:id", async (req, res) => {
-  const {id} = req.params
-  const data = await PostJobModel.findOne({ uniqueID: id });
+
+//for getting questions
+postJobRoute.get("/onejob/:id/:jid",auth, async (req, res) => {
+  const data = await PostJobModel.findOne({ RuserID: req.body.RuserID, uniqueID: req.params.jid });
+  res.status(200).send({
+    msg: data
+  })
+})
+
+//getting answers
+postJobRoute.get("/onejob/answers/:id/:jid", async (req, res) => {
+  const id = req.params.id;
+  const data = await AddNewQstnModel.findOne({ userID: id, jobUniqueId : req.params.jid});
   res.status(200).send({
     msg: data
   })

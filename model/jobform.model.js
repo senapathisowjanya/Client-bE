@@ -14,10 +14,10 @@ const JobFormSchma = mongoose.Schema({
     avaliableToStart:{
         type: String,
     },
-    screeningAvaliablity :{
-         type: Date,
-          required: true 
-    },
+    // screeningAvaliablity :{
+    //      type: Date,
+    //       required: true 
+    // },
     jobUniqueID: String,
     userID:String,
     RuserID: String,

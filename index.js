@@ -1,6 +1,6 @@
 const express = require("express")
 const userRoute = require("./controllers/user.controller")
-const connectionToDb = require("./config/connection")
+const {connectionToDb, initializeGridBucket} = require("./config/connection")
 const postJobRoute = require("./controllers/postjob.controller")
 const app = express()
 const cors = require("cors")
@@ -22,7 +22,7 @@ const auth = require("./middleware/auth.middleware")
 app.use(express.json())
 app.use(express.static("public"))
 
-app.use(express.json())
+// app.use(express.json())
 app.use("/user", userRoute)
 app.use("/jobs", postJobRoute)
 app.use("/password", forgetRoute)
@@ -43,78 +43,132 @@ const upload = multer({
    storage: Storage
 })
 
-//for audio files gridfs
 
-app.post("/api/upload", gridStorage().single("file"), async (req, res) => {
-   try {
-      const answers = req.body.answers;
-      const id = req.body.jobUniqueID;
-      console.log("idd", id)
-      const findJob = await JobFormModel.findOne({ jobUniqueID: id })
-      const postJobFind = await PostJobModel.findOne({uniqueID: findJob.jobUniqueID})
-       postJobFind.jobResponse = true;
-      //  console.log("postJobFind", postJobFind)
-       const mailUser = await UserModel.findOne({_id: postJobFind.RuserID})
-       console.log("mailUser: " + mailUser)
-       await postJobFind.save();
-      const data = new AddNewQstnModel({ AddNewQstn: answers })
-      await data.save()
-      const transporter = createTransport({
-         host:process.env.MAIL_HOST,
-         port: process.env.MAIL_PORT,
-         auth :{
-             user : process.env.MAIL_USER,
-             pass: process.env.MAIL_API_KEY
-         }
-     })
-     const mailOptions = {
-         from :process.env.MAIL_USER,
-         to : mailUser.email,
-         subject :"Welcome Message",
-         text:"Dear Recruiter, a new response has been received. Kindly log in to the application to access further details."
+
+app.post("/api/upload/:jid", auth, (req, res) => {
+const jid = req.params.jid
+let userId = req.body.userID
+   const uploadMiddleware = gridStorage(req, req.body.userID, jid).single("file");
+ 
+   uploadMiddleware(req, res, async (err) => {
+     if (err) {
+       // Handle the multer error here
+       return res.status(500).send({ msg: "File upload failed." });
      }
-     transporter.sendMail(mailOptions, (err, info)=>{
-         if(err){
-              res.status(500).send({
-                 msg:err.message
-             })
-         }else{
-              res.status(200).send({
-                 msg:"Email sent successfully"
-             })
-         }
-     }) 
-
+ 
+     try {
+       const answers = req.body.answers;
+       const id = req.body.jobUniqueID;
+      //  console.log("idd", id)
+       const findJob = await JobFormModel.findOne({ jobUniqueID: id })
+       const postJobFind = await PostJobModel.findOne({uniqueID: findJob.jobUniqueID})
+       postJobFind.jobResponse = true;
+       
+       const mailUser = await UserModel.findOne({_id: postJobFind.RuserID})
+      //  console.log("mailUser: " + mailUser.email)
+       await postJobFind.save();
+       
+       const data = new AddNewQstnModel({ AddNewQstn: answers })
+       data.jobUniqueId = id
+       data.userID = userId
+      //  console.log("userid", userId)
+       await data.save()
+       
+       const transporter = createTransport({
+          host: process.env.MAIL_HOST,
+          port: process.env.MAIL_PORT,
+          auth: {
+              user: process.env.MAIL_USER,
+              pass: process.env.MAIL_API_KEY
+          }
+      });
+      
+      const mailOptions = {
+          from: process.env.MAIL_USER,
+          to: mailUser.email,
+          subject: "Welcome Message",
+          text: "Dear Recruiter, a new response has been received. Kindly log in to the application to access further details."
+      };
+      
+      transporter.sendMail(mailOptions, (err, info) => {
+          if (err) {
+               res.status(500).send({
+                  msg: err.message
+              });
+          } else {
+               res.status(200).send({
+                  msg: "Email sent successfully"
+              });
+          }
+      });
+ 
       res.send({
-         msg: "Your response has been submitted"
-      })
-   } catch (error) {
-      res.status(404).send({
-         msg: error.message
-      })
-   }
-})
+          msg: "Your response has been submitted"
+       });
+    } catch (error) {
+       res.status(404).send({
+          msg: error.message
+       });
+    }
+   });
+ });
 
 //end audio files
 
-app.post("/upload", upload.single('file'), async (req, res) => {
-  // res.header('Access-Control-Allow-Origin', 'https://client-pro-venkysanju246.vercel.app/');
-
+//retrieve audio
+app.get("/gridStorage/:fileName", async (req, res) => {
    try {
-     
-      
+       const gridBucket = await initializeGridBucket();
+       const paramFileName = req.params.fileName;
+
+       const filesCursor = gridBucket.find({ filename: paramFileName });
+       const result = await filesCursor.toArray();
+
+       if (!result || result.length === 0) {
+           res.status(404).send({
+               msg: "File Does Not Exist!!",
+           });
+       } else {
+           res.setHeader("Content-Type", "application/octet-stream");
+           gridBucket.openDownloadStreamByName(paramFileName).pipe(res);
+       }
+   } catch (error) {
+       res.status(500).send({
+           msg: error.message,
+       });
+   }
+});
+
+//getting filename from grid fs 
+app.get("/getAudioFilename/:userId/:jobUniqueID", async (req, res) => {
+   try {
+      const userId = req.params.userId;
+      const jobUniqueID = req.params.jobUniqueID;
+      const gridBucket = await initializeGridBucket(); // Initialize GridFS bucket
+
+      // Find the document using userID
+      const filesCursor = gridBucket.find({ "metadata.userID": userId , "metadata.jobUniqueID" : jobUniqueID});
+      const result = await filesCursor.toArray();
+
+      if (!result || result.length === 0) {
+         res.status(404).json({ message: "File not found for the provided user ID" });
+      } else {
+         const filename = result[0].filename; 
+         res.status(200).json({ filename });
+      }
+   } catch (error) {
+      res.status(500).json({ message: error.message });
+   }
+});
+
+app.post("/upload", upload.single('file'), auth, async (req, res) => {
+
+   try { 
       const imgs = req.file.filename
-      const { email } = req.body
-     
-      const userCheck = await UserModel.find({ email })
 
       const newData = new JobSeekerModel({ firstName: req.body.firstName, lastName: req.body.lastName, email: req.body.email, phoneNumber: req.body.phoneNumber, image: req.file.filename, jobUniqueID: req.body.jobUniqueID })
+        newData.userID = req.body.userID
       await newData.save()
-      if (userCheck.length > 0) {
-         return res.status(200).send({
-            msg: "Looks like you already have an account with us"
-         })
-      }
       return res.status(201).send({
          msg: "upload success"
       })
@@ -126,13 +180,30 @@ app.post("/upload", upload.single('file'), async (req, res) => {
    }
 })
 
+app.get("/checkApply", async (req, res) => {
+   const { email } = req.query
+   //   console.log("email", email)
+   const userCheck = await UserModel.find({ email })
+   if (userCheck.length > 0) {
+      return res.status(400).send({
+         msg: "Looks like you already have an account with us"
+      })
+   }else{
+      return res.status(200).send({
+         msg: "New User"
+      })
+   }
+})
+
 //for view responses
-app.get("/getResponse/:id",async (req, res)=>{
+app.get("/getResponse/:id/:jid",async (req, res)=>{
    const id = req.params.id
-   const ResumeData = await JobSeekerModel.findOne({jobUniqueID: id})
-   const FullData = await JobFormModel.findOne({jobUniqueID: id})
-   console.log("ResumeData", ResumeData)
-   console.log("FullData", FullData)
+   const jid = req.params.jid
+   // console.log("jid: " + jid)
+   const FullData = await JobFormModel.findOne({userID: id, jobUniqueID : jid})
+   const ResumeData = await JobSeekerModel.findOne({userID: id, jobUniqueID: jid})
+   // console.log("ResumeData", ResumeData)
+   // console.log("FullData", FullData)
    res.send({
       ResumeData:ResumeData,
       FullData : FullData
@@ -143,8 +214,14 @@ app.get("/getResponse/:id",async (req, res)=>{
 app.listen(8080, async () => {
    try {
       await connectionToDb
-      console.log("connection to db")
-      console.log("connected to server...")
+      // console.log("connection to db")
+      // console.log("connected to server...")
+     
+
+        console.log("Connected to the database");
+        console.log("Connected to the server...");
+
+
    } catch (error) {
       console.log(error.message)
    }

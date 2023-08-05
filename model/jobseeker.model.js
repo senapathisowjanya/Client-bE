@@ -21,6 +21,7 @@ const JobSeekerSchema = mongoose.Schema({
         type: String
     },
     jobUniqueID: String,
+    userID: String
 })
 
 const JobSeekerModel = mongoose.model("Image", JobSeekerSchema)
