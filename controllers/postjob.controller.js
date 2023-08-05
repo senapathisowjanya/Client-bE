@@ -25,6 +25,14 @@ postJobRoute.post("/postjob",auth, async (req, res) => {
   }
 })
 
+postJobRoute.get("/onejob/:id", async (req, res) => {
+  const {id} = req.params
+  const data = await PostJobModel.findOne({ uniqueID: id });
+  res.status(200).send({
+    msg: data
+  })
+})
+
 postJobRoute.get("/alljobs", auth, async (req, res) => {
   try {
   const data = await PostJobModel.find({ userID: req.body.userID });
