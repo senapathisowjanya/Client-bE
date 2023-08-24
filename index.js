@@ -123,7 +123,7 @@ app.post("/api/upload/:jid", auth, (req, res) => {
             to: mailUser.email,
             subject: "Welcome Message",
             text:"Received a new response",
-            html: "Dear Recruiter, a new response has been received. Kindly log in to the application to access further details: <a href='http://localhost:3000/dashboard'>Click to view</a>"
+            html: "Dear Recruiter, a new response has been received. Kindly log in to the application to access further details: <a href='https://client-pro-venkysanju246.vercel.app/dashboard'>Click to view</a>"
          };
 
          transporter.sendMail(mailOptions, (err, info) => {

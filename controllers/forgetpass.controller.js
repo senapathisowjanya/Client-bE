@@ -81,7 +81,7 @@ forgetRoute.post("/update/:email", async (req, res) => {
         to: email,
         subject: "Password changed Successfully",
         text: "Here is the link to Login",
-        html: "Password updated succesfully. Please login with new credentials: <a href='http://localhost:3000/Login'>Login</a>"
+        html: "Password updated succesfully. Please login with new credentials: <a href='https://client-pro-venkysanju246.vercel.app/Login'>Login</a>"
       };
 
       transporter.sendMail(mailOptions, (err, info) => {
