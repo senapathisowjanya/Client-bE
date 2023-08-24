@@ -60,15 +60,43 @@ forgetRoute.post("/update/:email", async (req, res) => {
   try {
     const { password } = req.body;
     const { email } = req.params
-    // console.log(email)
+    console.log("Email updated", email)
     const emailCheck = await UserModel.findOne({ email: email });
-    // console.log(emailCheck);
+    console.log("emailCheck", emailCheck)
     if (emailCheck) {
       const hash = bcrypt.hashSync(password, 5);
       const passUpdate = await UserModel.findByIdAndUpdate(emailCheck._id, { password: hash });
-      return res.status(200).send({
-        msg:"Password updated successfully"
+
+      const transporter = createTransport({
+        host: process.env.MAIL_HOST,
+        port: process.env.MAIL_PORT,
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_API_KEY
+        }
       })
+
+      const mailOptions = {
+        from: process.env.MAIL_USER,
+        to: email,
+        subject: "Password changed Successfully",
+        text: "Here is the link to Login",
+        html: "Password updated succesfully. Please login with new credentials: <a href='http://localhost:3000/Login'>Login</a>"
+      };
+
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          return res.status(500).send({
+            msg: err.message
+          })
+        } else {
+          return res.status(200).send({
+            msg: "Password updated successfully"
+          })
+        }
+      })
+
+      
     } else {
       return res.status(400).send({
         msg: "Something went wrong",

@@ -5,6 +5,7 @@ const postJobRoute = express.Router()
 const uuid = require("uuid");
 const JobFormModel = require('../model/jobform.model');
 const AddNewQstnModel = require('../model/addnewqstn.model');
+const savedQuestionsModel = require('../model/savedQuestions');
 
 postJobRoute.post("/postjob",auth, async (req, res) => {
   try {
@@ -109,6 +110,53 @@ postJobRoute.patch("/update/:id", async (req, res) =>{
  res.status(201).send({
   msg:"updated job"
  })
+
+})
+
+//for saving questions
+postJobRoute.post("/saveQuestion", auth, async (req, res) => {
+  const rid = req.body.RuserID;
+  // console.log("qstns", req.body);
+  
+  const dataCheck = await savedQuestionsModel.findOne({ RuserID: rid });
+  
+  if (dataCheck) {
+    dataCheck.savedQuestions.push(req.body.saveQuestion); 
+    await dataCheck.save(); 
+  } else {
+    const newQuestion = new savedQuestionsModel({
+      savedQuestions: [req.body.saveQuestion], 
+      RuserID: rid,
+    });
+    await newQuestion.save();
+  }
+
+  res.send({
+    msg: "Question saved successfully",
+  });
+});
+
+//for getting questions 
+postJobRoute.get("/getQuestions", auth, async (req, res) => {
+  try {
+    const rid = req.body.RuserID;
+    const dataCheck = await savedQuestionsModel.findOne({ RuserID: rid });
+    // console.log("qstsns", dataCheck.savedQuestions)
+    if(dataCheck){
+      return res.status(200).send({
+        msg: dataCheck.savedQuestions
+      })
+    }else{
+      es.status(200).send({
+        msg: "No Saved Questions Avaliable"
+      })
+    }
+    
+  } catch (error) {
+    return res.status(500).send({
+      msg :"Error getting questions"
+    })
+  }
 
 })
 

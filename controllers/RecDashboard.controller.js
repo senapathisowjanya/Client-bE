@@ -69,7 +69,7 @@ RecDashboardRoute.get("/applicants/:id" , auth,async (req, res)=>{
 RecDashboardRoute.get("/applicants",auth, async(req, res)=>{
   try {
     const id = req.body.RuserID 
-     const data = await JobFormModel.find({RuserID: id})
+    const data = await JobFormModel.find({RuserID: id, isViewed : false})
      res.status(200).send({
       msg: data
      })
