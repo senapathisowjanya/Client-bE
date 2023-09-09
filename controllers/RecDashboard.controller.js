@@ -7,17 +7,26 @@ const RecDashboardRoute = express.Router();
 
 //active jobs
 RecDashboardRoute.get("/activeJobs",auth, async (req, res)=>{
-    try {
-        const id = req.body.RuserID 
-        const activeJobs = await PostJobModel.find({RuserID:id});
-        res.status(200).send({
-            msg: activeJobs
-        })
-    } catch (error) {
-        res.status(400).send({
-            msg: error.message
-        })
-    }
+  try {
+      const id = req.body.RuserID 
+      // console.log("uid: " + req.body.uniqueID)
+      const activeJobs = await PostJobModel.find({RuserID:id});
+      const arr = [];
+      for(let i =0;i<activeJobs.length;i++){
+       const uid = activeJobs[i].uniqueID
+       const check = await JobFormModel.find({jobUniqueID:uid});
+       arr.push(check.length);
+      }
+      // console.log("Array: " + arr)
+      res.status(200).send({
+          msg: activeJobs,
+          unread: arr
+      })
+  } catch (error) {
+      res.status(400).send({
+          msg: error.message
+      })
+  }
 })
 
 //Jobs with no response
