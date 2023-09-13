@@ -9,15 +9,15 @@ const RecDashboardRoute = express.Router();
 RecDashboardRoute.get("/activeJobs",auth, async (req, res)=>{
   try {
       const id = req.body.RuserID 
-      // console.log("uid: " + req.body.uniqueID)
+      console.log("uid: " + req.body.uniqueID)
       const activeJobs = await PostJobModel.find({RuserID:id});
       const arr = [];
       for(let i =0;i<activeJobs.length;i++){
        const uid = activeJobs[i].uniqueID
-       const check = await JobFormModel.find({jobUniqueID:uid});
+       const check = await JobFormModel.find({jobUniqueID:uid, isViewed: false});
        arr.push(check.length);
       }
-      // console.log("Array: " + arr)
+      console.log("Array: " + arr)
       res.status(200).send({
           msg: activeJobs,
           unread: arr
