@@ -12,6 +12,7 @@ jobFormRoute.post("/jobform",auth, async(req, res)=>{
         payload.isViewed = false
         payload.userID = id;
         payload.RuserID = postjobData.RuserID;
+        payload.candidateStatus = "All"
         const newApplicant = new JobFormModel(payload)
          await newApplicant.save();
         res.send({

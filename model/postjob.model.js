@@ -2,7 +2,11 @@ const mongoose = require("mongoose");
 
 const PostJobSchema = mongoose.Schema({
   position: String,
+  salary: String,
   jobDescription: String,
+  jobType: {
+    type: Array,
+  },
   positionType: {
     type: Array,
   },
@@ -10,6 +14,9 @@ const PostJobSchema = mongoose.Schema({
     type: String,
     enum: ['Available', 'Not Available'],
   },
+  city:String,
+  state:String,
+  zip:String,
   addNewQuestion: Array,
   status:{
     type: String,
