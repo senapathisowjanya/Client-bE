@@ -6,22 +6,54 @@ const JobFormModel = require('../model/jobform.model');
 const RecDashboardRoute = express.Router();
 
 //active jobs
-RecDashboardRoute.get("/activeJobs",auth, async (req, res)=>{
+RecDashboardRoute.get("/activeJobs", auth,async (req, res)=>{
   try {
+    const optn = req.query.sortValue 
+    console.log("get active", optn);
+    if(optn===undefined || optn===""){
+      console.log("No sort value found")
       const id = req.body.RuserID 
-      console.log("uid: " + req.body.uniqueID)
-      const activeJobs = await PostJobModel.find({RuserID:id});
+      console.log("Ruserid", id)
+      const activeJobs = await PostJobModel.find({RuserID:id}).sort({ createdAt: -1 });
       const arr = [];
       for(let i =0;i<activeJobs.length;i++){
        const uid = activeJobs[i].uniqueID
        const check = await JobFormModel.find({jobUniqueID:uid, isViewed: false});
        arr.push(check.length);
       }
-      // console.log("Array: " + arr)
       res.status(200).send({
           msg: activeJobs,
           unread: arr
       })
+    }else if(optn==="asc"){
+      console.log("Ascending jobs")
+      const id = req.body.RuserID 
+      const activeJobs = await PostJobModel.find({RuserID:id}).sort({ createdAt: 1 });
+      const arr = [];
+      for(let i =0;i<activeJobs.length;i++){
+       const uid = activeJobs[i].uniqueID
+       const check = await JobFormModel.find({jobUniqueID:uid, isViewed: false});
+       arr.push(check.length);
+      }
+      res.status(200).send({
+          msg: activeJobs,
+          unread: arr
+      })
+    }else if(optn==="des"){
+      const id = req.body.RuserID 
+      const activeJobs = await PostJobModel.find({RuserID:id}).sort({ createdAt: -1 });
+      const arr = [];
+      for(let i =0;i<activeJobs.length;i++){
+       const uid = activeJobs[i].uniqueID
+       const check = await JobFormModel.find({jobUniqueID:uid, isViewed: false});
+       arr.push(check.length);
+      }
+      res.status(200).send({
+          msg: activeJobs,
+          unread: arr
+      })
+    }
+     
   } catch (error) {
       res.status(400).send({
           msg: error.message

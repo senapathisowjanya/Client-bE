@@ -30,7 +30,11 @@ const PostJobSchema = mongoose.Schema({
     type: Date,
     default: Date.now
 },
-jobLink: String
+jobLink: String,
+createdAt: {
+  type: Date,
+  default: Date.now
+}
 });
 
 const PostJobModel = mongoose.model("PostJob", PostJobSchema);
