@@ -7,6 +7,7 @@ const jobFormRoute = express.Router();
 jobFormRoute.post("/jobform",auth, async(req, res)=>{
     try {
         const payload = req.body;
+        console.log("jobForm", payload);
         const id = req.body.userID
         const postjobData = await PostJobModel.findOne({uniqueID : payload.jobUniqueID})
         payload.isViewed = false

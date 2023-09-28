@@ -4,7 +4,7 @@ const JobFormSchma = mongoose.Schema({
     city: String,
     state: String,
     zip: Number,
-    dob: Date,
+    // dob: Date,
     sponsorship :{
         type: String,
     },
@@ -13,6 +13,9 @@ const JobFormSchma = mongoose.Schema({
     },
     avaliableToStart:{
         type: String,
+    },
+    socialProfiles: {
+        type:Array
     },
     jobUniqueID: String,
     userID:String,
