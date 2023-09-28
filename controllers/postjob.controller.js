@@ -7,12 +7,14 @@ const JobFormModel = require('../model/jobform.model');
 const AddNewQstnModel = require('../model/addnewqstn.model');
 const savedQuestionsModel = require('../model/savedQuestions');
 
-postJobRoute.post("/postjob",auth, async (req, res) => {
+postJobRoute.post("/postjob", auth, async (req, res) => {
+
   try {
     const uniqueID = uuid.v4();
     const payLoad = req.body
     payLoad.uniqueID = uniqueID
     payLoad.jobResponse = false;
+    payLoad.jobLink =  `https://client-pro-venkysanju246.vercel.app/SingleJobPost/${uniqueID}`;
     const newJob = new PostJobModel(payLoad)
     await newJob.save()
     res.status(201).send({
@@ -21,7 +23,7 @@ postJobRoute.post("/postjob",auth, async (req, res) => {
     })
   } catch (error) {
     res.status(400).send({
-      msg: error.message
+      msg: `Please fill all the fields ${error.message}`
     })
   }
 })
@@ -155,6 +157,21 @@ postJobRoute.get("/getQuestions", auth, async (req, res) => {
   } catch (error) {
     return res.status(500).send({
       msg :"Error getting questions"
+    })
+  }
+
+})
+
+postJobRoute.get("/getJobPost/:id", auth, async (req, res) => {
+  try {
+    const { id } = req.params
+    const getJobPost = await PostJobModel.findOne({ uniqueID: id })
+    res.status(200).send({
+      msg: getJobPost
+    })
+  } catch (error) {
+    res.status(500).send({
+      msg: error.message
     })
   }
 
