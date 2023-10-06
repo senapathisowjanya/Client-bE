@@ -9,7 +9,7 @@ require("dotenv").config()
 
 userRoute.post("/register", async(req, res)=>{
     try {
-        const {email, password, role} = req.body
+        const {firstName,lastName,email, password, role} = req.body
         const userCheck = await UserModel.findOne({email})
         if(userCheck){
             return res.status(401).send({
@@ -17,7 +17,7 @@ userRoute.post("/register", async(req, res)=>{
             })
         }else{
             bcrypt.hash(password, 5,async (err, hash)=>{
-                const newUser = new UserModel({email, password:hash, role})
+                const newUser = new UserModel({firstName, lastName, email, password:hash, role})
                 await newUser.save()
 
                 const transporter = createTransport({
@@ -33,7 +33,8 @@ userRoute.post("/register", async(req, res)=>{
                     from :process.env.MAIL_USER,
                     to : email,
                     subject :"Welcome Message",
-                    text:"Congratulations! Your account registration has been successfully completed. Please proceed to login."
+                    text:"Registration Successful.",
+                    html:`Congratulations ${firstName}! Your account registration has been successfully completed. Please proceed to login: <a href='https://client-pro-venkysanju246.vercel.app/Login'>Login</a>`
                 }
                 transporter.sendMail(mailOptions, (err, info)=>{
                     if(err){

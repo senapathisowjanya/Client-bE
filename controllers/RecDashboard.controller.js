@@ -336,4 +336,19 @@ RecDashboardRoute.get("/secondApply/:id", async (req, res)=>{
   }
 })
 
+RecDashboardRoute.get("/postionname/:id", auth, async (req, res) => {
+  try {
+    const id = req.params.id
+    const getposition = await PostJobModel.findOne({ uniqueID: id })
+    res.status(200).send({
+      msg: getposition
+    })
+  } catch (error) {
+    res.status(500).send({
+      msg: error.message
+    })
+  }
+
+})
+
 module.exports = RecDashboardRoute

@@ -1,38 +1,45 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
-const JobFormSchma = mongoose.Schema({
+const socialProfileSchema = mongoose.Schema();
+
+const JobFormSchema = mongoose.Schema({
     city: String,
     state: String,
     zip: Number,
-    // dob: Date,
-    sponsorship :{
-        type: String,
+    sponsorship: {
+        type: Array,
     },
-    clientAvailability: {
-        type: String,
+    interviewAvailability: {
+        type: Array,
     },
-    avaliableToStart:{
-        type: String,
+    Availability: {
+        type: Array,
     },
     socialProfiles: {
-        type:Array
+        type: [{
+            media: String,
+            url: String
+        }]
+    },
+    resume: {
+        type: String
     },
     jobUniqueID: String,
-    userID:String,
+    userID: String,
     RuserID: String,
     isViewed: Boolean,
     date: {
         type: Date,
         default: Date.now
     },
-    position:String,
-    candidateStatus:String,
-    name:String,
-    email:String,
-    phone:String,
-    resumeFilename:String
-})
+    position: String,
+    candidateStatus: String,
+    name: String,
+    email: String,
+    phone: String,
+    resumeFilename: String
+});
 
-const JobFormModel = mongoose.model("jobform", JobFormSchma)
+const JobFormModel = mongoose.model("jobform", JobFormSchema);
 
-module.exports = JobFormModel
+module.exports = JobFormModel;

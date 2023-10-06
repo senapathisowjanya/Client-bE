@@ -198,16 +198,27 @@ app.get("/getAudioFilename/:userId/:jobUniqueID", async (req, res) => {
 });
 
 app.post("/upload", upload.single('file'), auth, async (req, res) => {
+   // console.log("upload server")
 
    try {
       const imgs = req.file.filename
-
-      const newData = new JobSeekerModel({ firstName: req.body.firstName, lastName: req.body.lastName, email: req.body.email, phoneNumber: req.body.phoneNumber, image: req.file.filename, jobUniqueID: req.body.jobUniqueID })
-      newData.userID = req.body.userID
-      await newData.save()
-      return res.status(201).send({
-         msg: "upload success"
-      })
+      
+      // console.log("imgs: " + imgs)
+      const payload = req.body;
+      // console.log("jobForm", payload);
+      const id = req.body.userID
+      payload.resume = imgs
+      payload.socialProfiles = JSON.parse(payload.socialProfiles);
+      const postjobData = await PostJobModel.findOne({ uniqueID: payload.jobUniqueID })
+      payload.isViewed = false
+      payload.userID = id;
+      payload.RuserID = postjobData.RuserID;
+      payload.candidateStatus = "All"
+      const newApplicant = new JobFormModel(payload)
+      await newApplicant.save();
+      res.send({
+         msg: "JobForm saved successfully"
+      });
 
    } catch (error) {
       return res.status(500).send({

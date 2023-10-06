@@ -1,11 +1,16 @@
 const mongoose = require("mongoose");
 
 const PostJobSchema = mongoose.Schema({
-  position: String,
+  position: {
+    type:String
+  },
   salary: String,
   jobDescription: String,
   jobType: {
     type: Array,
+  },
+  jobLocType:{
+    type:Array
   },
   positionType: {
     type: Array,

@@ -14,7 +14,7 @@ postJobRoute.post("/postjob", auth, async (req, res) => {
     const payLoad = req.body
     payLoad.uniqueID = uniqueID
     payLoad.jobResponse = false;
-    payLoad.jobLink =  `https://client-pro-venkysanju246.vercel.app/SingleJobPost/${uniqueID}`;
+    payLoad.jobLink =  `https://client-pro-venkysanju246.vercel.app/SingleJobPost/${uniqueID}/a`;
     const newJob = new PostJobModel(payLoad)
     await newJob.save()
     res.status(201).send({
@@ -80,7 +80,7 @@ postJobRoute.post("/jobform", async(req, res)=>{
 postJobRoute.post("/addlink/:link", auth, async (req, res) => {
 
   const linkk = req.params.link
-  const joblink = `https://client-pro-venkysanju246.vercel.app/SingleJobPost/${linkk}`
+  const joblink = `https://client-pro-venkysanju246.vercel.app/SingleJobPost/${linkk}/a`
   // console.log(linkk)
   // console.log(joblink)
  
