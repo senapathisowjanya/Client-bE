@@ -351,4 +351,22 @@ RecDashboardRoute.get("/postionname/:id", auth, async (req, res) => {
 
 })
 
+//for getting firstName for rcruiter dashboard
+RecDashboardRoute.post("/fname", auth, async (req, res) => {
+  const Ruserid = req.body.RuserID
+  const data = await UserModel.findOne({ _id: Ruserid })
+  res.send({
+    msg: data
+  })
+})
+
+//for getting email and name for profile modal
+RecDashboardRoute.get("/emailProfile/:id", auth, async (req, res) => {
+  const userid = req.params.id
+  const data = await UserModel.findOne({ _id: userid })
+  res.send({
+    msg: data
+  })
+})
+
 module.exports = RecDashboardRoute

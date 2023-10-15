@@ -7,13 +7,16 @@ const JobFormSchema = mongoose.Schema({
     state: String,
     zip: Number,
     sponsorship: {
-        type: Array,
+        type: String,
     },
     interviewAvailability: {
-        type: Array,
+        type: String,
     },
     Availability: {
-        type: Array,
+        type: String,
+    },
+    phone:{
+        type: String,
     },
     socialProfiles: {
         type: [{
@@ -24,6 +27,7 @@ const JobFormSchema = mongoose.Schema({
     resume: {
         type: String
     },
+    resumeSummary:String,
     jobUniqueID: String,
     userID: String,
     RuserID: String,

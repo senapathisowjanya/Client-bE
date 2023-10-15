@@ -70,7 +70,7 @@ userRoute.post("/login", async(req, res)=>{
                     if(result){
                         const token = jwt.sign({RuserID: userCheck._id}, process.env.JWT_SECRET, {expiresIn:"7d"})
                         return res.status(200).send({
-                            msg:"Login Success",
+                            msg:"Recruiter Login Success",
                             token: token,
                             role: userCheck.role
                         })
