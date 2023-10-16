@@ -25,8 +25,8 @@ const auth = require("./middleware/auth.middleware")
 app.use(express.json())
 app.use(express.static("public"))
 
-const pdf = require('pdf-parse');
-const fs = require('fs');
+// const pdf = require('pdf-parse');
+// const fs = require('fs');
 
 // app.use(express.json())
 app.use("/user", userRoute)
@@ -203,41 +203,37 @@ app.get("/getAudioFilename/:userId/:jobUniqueID", async (req, res) => {
 app.post("/upload", upload.single('file'), auth, async (req, res) => {
    try {
       const imgs = req.file.filename
-      if (!imgs) {
-         return res.status(404).json({
-            error: "Resume Not Found, please upload it again."
-         });
-      }
-      let dataBuffer = `public/Images/${imgs}`;
+     
+      // let dataBuffer = `public/Images/${imgs}`;
 
-      fs.readFile(dataBuffer, (err, condata) => {
-         if (err) {
-           console.error("error: ",err);
-           return;
-         }
-         pdf(condata).then(async function (data) {
+      // fs.readFile(dataBuffer, (err, condata) => {
+      //    if (err) {
+      //      console.error("error: ",err);
+      //      return;
+      //    }
+         // pdf(condata).then(async function (data) {
 
-            const response = await fetch(
-               "https://api-inference.huggingface.co/models/slauw87/bart_summarisation",
-               {
-                 headers: { Authorization: `Bearer ${process.env.Summary_API}` },
-                 method: "POST",
-                 body: JSON.stringify({ "inputs": data.text }),
-               }
-             );
+            // const response = await fetch(
+            //    "https://api-inference.huggingface.co/models/slauw87/bart_summarisation",
+            //    {
+            //      headers: { Authorization: `Bearer ${process.env.Summary_API}` },
+            //      method: "POST",
+            //      body: JSON.stringify({ "inputs": data.text }),
+            //    }
+            //  );
        
-             if (!response.ok) {
-               console.error(`Request failed with status ${response.status}`);
-               return;
-             }
+            //  if (!response.ok) {
+            //    console.error(`Request failed with status ${response.status}`);
+            //    return;
+            //  }
        
-             const result = await response.json();
-             const resSummary = result[0].summary_text
-             console.log(JSON.stringify("final result",result[0].summary_text));
+            //  const result = await response.json();
+            //  const resSummary = result[0].summary_text
+            //  console.log(JSON.stringify("final result",result[0].summary_text));
    
    
             const payload = req.body;
-            console.log (payload);
+            // console.log (payload);
             const id = req.body.userID
             payload.resume = imgs
             payload.socialProfiles = JSON.parse(payload.socialProfiles);
@@ -246,16 +242,16 @@ app.post("/upload", upload.single('file'), auth, async (req, res) => {
             payload.userID = id;
             payload.RuserID = postjobData.RuserID;
             payload.candidateStatus = "All"
-            payload.resumeSummary = resSummary
+            // payload.resumeSummary = resSummary
             const newApplicant = new JobFormModel(payload)
             await newApplicant.save();
             res.send({
                msg: "JobForm saved successfully"
             });
-         }).catch((error) => {
-            console.error(error);
-          });
-      });
+         // }).catch((error) => {
+         //    console.error(error);
+         //  });
+      // });
      
    } catch (error) {
       return res.status(500).send({

@@ -15,9 +15,6 @@ const JobFormSchema = mongoose.Schema({
     Availability: {
         type: String,
     },
-    phone:{
-        type: String,
-    },
     socialProfiles: {
         type: [{
             media: String,
@@ -27,7 +24,7 @@ const JobFormSchema = mongoose.Schema({
     resume: {
         type: String
     },
-    resumeSummary:String,
+    // resumeSummary:String,
     jobUniqueID: String,
     userID: String,
     RuserID: String,
@@ -41,7 +38,6 @@ const JobFormSchema = mongoose.Schema({
     name: String,
     email: String,
     phone: String,
-    resumeFilename: String
 });
 
 const JobFormModel = mongoose.model("jobform", JobFormSchema);
